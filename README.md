@@ -17,8 +17,13 @@ Git
 Setup
 
 Clone the repo:
+<<<<<<< HEAD
 git clone https://github.com/your-username/your-repo.git
 cd your-repo
+=======
+git clone https://github.com/Govindaspkta/BulkMessageSender.git
+cd BulkMessageSender
+>>>>>>> 533a848 (added readme)
 
 
 Set up virtual environment:
@@ -28,7 +33,11 @@ python -m venv venv
 
 
 Install dependencies:
+<<<<<<< HEAD
 pip install flask flask-cors twilio requests python-dotenv
+=======
+pip install -r requirements.txt
+>>>>>>> 533a848 (added readme)
 
 
 Configure Twilio:
@@ -67,6 +76,12 @@ Compliance: Ensure recipient consent for Nepal’s telecom laws.
 Production: Upgrade Twilio for unrestricted bulk sending.
 
 Contributing
+<<<<<<< HEAD
 🚀 Add features (e.g., paid Twilio support, CSV upload)? Fork, create a branch, and submit a PR!
 License
 MIT License
+=======
+🚀 Add features (e.g., CSV upload, paid Twilio support)? Fork, create a branch, and submit a PR!
+License
+This project is licensed under the MIT License - see the LICENSE file for details.
+>>>>>>> 533a848 (added readme)
