@@ -1,0 +1,107 @@
+<!DOCTYPE html>
+<html lang="en">
+<head>
+  <meta charset="UTF-8">
+  <meta name="viewport" content="width=device-width, initial-scale=1.0">
+  <title>Bulk SMS Sender</title>
+  <script src="https://cdnjs.cloudflare.com/ajax/libs/react/18.2.0/umd/react.production.min.js"></script>
+  <script src="https://cdnjs.cloudflare.com/ajax/libs/react-dom/18.2.0/umd/react-dom.production.min.js"></script>
+  <script src="https://cdnjs.cloudflare.com/ajax/libs/babel-standalone/7.22.9/babel.min.js"></script>
+  <script src="https://cdn.tailwindcss.com"></script>
+</head>
+<body>
+  <div id="root"></div>
+  <script type="text/babel">
+    function App() {
+      const [numbers, setNumbers] = React.useState('');
+      const [message, setMessage] = React.useState('');
+      const [status, setStatus] = React.useState('');
+      const [isLoading, setIsLoading] = React.useState(false);
+
+      const validateNumbers = (input) => {
+        const numArray = input.split(',').map(num => num.trim());
+        const e164Regex = /^\+\d{10,15}$/;
+        return numArray.every(num => e164Regex.test(num));
+      };
+
+      const handleSubmit = async (e) => {
+        e.preventDefault();
+        if (!numbers || !message) {
+          setStatus('Please enter phone numbers and a message.');
+          return;
+        }
+
+        if (!validateNumbers(numbers)) {
+          setStatus('Invalid phone number format. Use E.164 (e.g., +9779812345678).');
+          return;
+        }
+
+        setIsLoading(true);
+        setStatus('');
+
+        try {
+          const response = await fetch('http://localhost:5000/send-sms', {
+            method: 'POST',
+            headers: { 'Content-Type': 'application/json; charset=UTF-8' },
+            body: JSON.stringify({ numbers: numbers.split(',').map(num => num.trim()), message })
+          });
+          const data = await response.json();
+          if (response.ok) {
+            setStatus(data.message);
+          } else {
+            setStatus(`Error: ${data.message}`);
+          }
+        } catch (error) {
+          setStatus('Error sending message. Please try again.');
+        } finally {
+          setIsLoading(false);
+        }
+      };
+
+      return (
+        <div className="min-h-screen bg-gray-100 flex items-center justify-center p-4">
+          <div className="bg-white p-6 rounded-lg shadow-lg w-full max-w-md">
+            <h1 className="text-2xl font-bold text-center mb-6">Bulk SMS Sender</h1>
+            <form onSubmit={handleSubmit} className="space-y-4">
+              <div>
+                <label className="block text-sm font-medium text-gray-700">Phone Numbers (comma-separated, E.164 format)</label>
+                <input
+                  type="text"
+                  value={numbers}
+                  onChange={(e) => setNumbers(e.target.value)}
+                  placeholder="e.g., +9779812345678,+9779823456789"
+                  className="mt-1 block w-full p-2 border border-gray-300 rounded-md focus:outline-none focus:ring-2 focus:ring-blue-500"
+                />
+              </div>
+              <div>
+                <label className="block text-sm font-medium text-gray-700">Message (Supports Any Language)</label>
+                <textarea
+                  value={message}
+                  onChange={(e) => setMessage(e.target.value)}
+                  placeholder="Type your message (e.g., नमस्ते, Hello, مرحبا)..."
+                  className="mt-1 block w-full p-2 border border-gray-300 rounded-md focus:outline-none focus:ring-2 focus:ring-blue-500"
+                  rows="4"
+                />
+              </div>
+              <button
+                type="submit"
+                disabled={isLoading}
+                className={`w-full py-2 px-4 bg-blue-600 text-white rounded-md hover:bg-blue-700 focus:outline-none focus:ring-2 focus:ring-blue-500 ${isLoading ? 'opacity-50 cursor-not-allowed' : ''}`}
+              >
+                {isLoading ? 'Sending...' : 'Send SMS'}
+              </button>
+            </form>
+            {status && (
+              <p className={`mt-4 text-center ${status.includes('Error') || status.includes('Invalid') ? 'text-red-500' : 'text-green-500'}`}>
+                {status}
+              </p>
+            )}
+          </div>
+        </div>
+      );
+    }
+
+    ReactDOM.render(<App />, document.getElementById('root'));
+  </script>
+</body>
+</html>
